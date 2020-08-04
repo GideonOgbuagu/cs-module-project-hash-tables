@@ -24,6 +24,8 @@ class HashTable:
     def __init__(self, capacity):
         # Your code here
         self.capacity = MIN_CAPACITY
+        self.size = [None] * self.capacity
+        # self.slots = len(self.size)
 
     def get_num_slots(self):
         """
@@ -36,6 +38,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        return len(self.size)
 
     def get_load_factor(self):
         """
@@ -61,10 +64,19 @@ class HashTable:
         Implement this, and/or FNV-1.
         """
         # Your code here
-        hash = 5381
-        for x in key:
-            hash = ((hash << 5) + hash) + ord(x)
-        return hash & 0xFFFFFFFF
+        # hash = 5381
+        # for x in key:
+        #     hash = ((hash << 5) + hash) + ord(x)
+        # return hash & 0xFFFFFFFF
+
+        hash_var = 5381
+        string_bytes = key.encode()
+
+        for x in string_bytes:
+            hash_var = ((hash_var << 5) + hash_var) + x
+
+        return hash_var
+
 
     def hash_index(self, key):
         """
@@ -83,6 +95,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        hashed_index = self.hash_index(key)
+        self.size[hashed_index] = value
 
     def delete(self, key):
         """
@@ -93,6 +107,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        hashed_index = self.hash_index(key)
+        self.size[hashed_index] = None
 
     def get(self, key):
         """
@@ -103,6 +119,9 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        hashed_index = self.hash_index(key)
+        return self.size[hashed_index]
+
 
     def resize(self, new_capacity):
         """
@@ -131,7 +150,7 @@ if __name__ == "__main__":
     ht.put("line_12", "And stood awhile in thought.")
 
     print("")
-
+    
     # Test storing beyond capacity
     for i in range(1, 13):
         print(ht.get(f"line_{i}"))
@@ -148,3 +167,6 @@ if __name__ == "__main__":
         print(ht.get(f"line_{i}"))
 
     print("")
+
+    # print(ht.size)
+    print(ht.get("line_4"))
