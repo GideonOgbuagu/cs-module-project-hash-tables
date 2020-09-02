@@ -12,6 +12,49 @@ class HashTableEntry:
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
 
+# singly linked list
+
+
+class LinkedList:
+    def __init__(self):
+        self.head = None
+
+    def find(self, key):
+        current = self.head
+
+        while current is not None:
+            if current.key == key:
+                return current
+            current = current.next
+
+        return current
+
+    def update_or_else_insert_at_head(self, key, value):
+        # check if the key is already in the linked list
+        # find the node
+        current = self.head
+        while current is not None:
+            # if key is found, change the value
+            if current.key == key:
+                current.value = value
+                # exit function immediately
+                return
+            current = current.next
+
+        # if we reach the end of the list, it's not here!
+        # make a new node, and insert at head
+        new_node = HashTableEntry(key, value)
+        new_node.next = self.head
+        self.head = new_node
+
+    def update_or_else_insert_at_tail(self):
+        # walk through and check if key is here
+        # if not, make a new node and insert at tail
+        pass
+
+    def delete(self):
+        pass
+
 
 class HashTable:
     """
@@ -23,9 +66,8 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
-        self.capacity = MIN_CAPACITY
-        self.size = [None] * self.capacity
-        # self.slots = len(self.size)
+        self.capacity = max(MIN_CAPACITY, capacity)
+        self.hash_map = [None] * self.capacity
 
     def get_num_slots(self):
         """
@@ -38,7 +80,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        return len(self.size)
+        return self.capacity
 
     def get_load_factor(self):
         """
@@ -54,8 +96,27 @@ class HashTable:
 
         Implement this, and/or DJB2.
         """
+          #     algorithm fnv-1 is
+        # hash := FNV_offset_basis do
 
+        # for each byte_of_data to be hashed
+        #     hash := hash × FNV_prime
+        #     hash := hash XOR byte_of_data
+
+        # return hash
         # Your code here
+        FNV_offset_basis = 14695981039346656037
+        FNV_prime = 1099511628211
+
+        hashed_var = FNV_offset_basis
+
+        string_bytes = key.encode()
+
+        for b in string_bytes:
+            hashed_var = hashed_var * FNV_prime
+            hashed_var = hashed_var ^ b
+
+        return hashed_var
 
     def djb2(self, key):
         """
@@ -77,7 +138,6 @@ class HashTable:
 
         return hash_var
 
-
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
@@ -95,8 +155,19 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        hashed_index = self.hash_index(key)
-        self.size[hashed_index] = value
+      
+        hash_index = self.hash_index(key)
+        if not self.hash_map[hash_index]:  # Nothing there, put a node
+            self.hash_map[hash_index] = HashTableEntry(key, value)
+        else:
+            current_node = self.hash_map[hash_index]
+            while current_node.key != key and current_node.next:
+                current_node = current_node.next
+            # update existing
+            if current_node.key == key:
+                current_node.value = value
+            else:
+                current_node.next = HashTableEntry(key, value)  # add at end
 
     def delete(self, key):
         """
@@ -107,8 +178,28 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        hashed_index = self.hash_index(key)
-        self.size[hashed_index] = None
+        # hashed_index = self.hash_index(key)
+        # self.hash_map[hashed_index] = None
+        # hashed_index = self.hash_index(key)
+        # if self.hash_map[hashed_index]:
+        #     self.hash_map[hashed_index] = None
+        # else:
+        #     current_node = self.hash_map[hashed_index]
+        #     while current_node and current_node.key == key:
+        #         current_node.value = None
+        hash_index = self.hash_index(key)
+        if self.hash_map[hash_index]:
+            current_node = self.hash_map[hash_index]
+            prev = current_node
+            while current_node.key != key and current_node.next:
+                prev = current_node
+                current_node = current_node.next
+            # update existing
+            if current_node.key == key:
+                prev.next = current_node.next
+                current_node.value = None
+        else:
+            print("Error: key not found")
 
     def get(self, key):
         """
@@ -119,9 +210,25 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        hashed_index = self.hash_index(key)
-        return self.size[hashed_index]
+        # hashed_index = self.hash_index(key)
+        # if self.hash_map[hashed_index]:
+        #     return self.hash_map[hashed_index]
+        # else:
+        #     current_node = self.hash_map[hashed_index]
+        #     while current_node and current_node.key == key:
+        #         return current_node.value
 
+        hash_index = self.hash_index(key)
+        if self.hash_map[hash_index]:
+            current_node = self.hash_map[hash_index]
+            while current_node.key != key and current_node.next:
+                current_node = current_node.next
+            # update existing
+            if current_node.key == key:
+               return current_node.value
+
+
+    
 
     def resize(self, new_capacity):
         """
@@ -131,6 +238,32 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # new_capacity = self.hash_map * 2
+            # $%$Start
+        # old_storage = self.hash_map
+        # self.capacity = new_capacity
+        # self.hash_map = [None] * self.capacity
+        # current_entry = None
+        # # Save this because put adds to it, and we don't want it to.
+        # # It might be less hackish to pass a flag to put indicating that
+        # # we're in a resize and don't want to modify item count.
+        # old_item_count = self.item_count
+        # for bucket_item in old_storage:
+        #     current_entry = bucket_item
+        #     while current_entry is not None:
+        #         self.put(current_entry.key, current_entry.value)
+        #         current_entry = current_entry.next
+        # # Restore this to the correct number
+        # self.item_count = old_item_count
+        # # $%$End
+        old_hash_map = self.hash_map
+        self.hash_map = [None] * new_capacity
+        self.capacity = new_capacity
+        for element in old_hash_map:
+            current = element
+            while current:
+                self.put(element.key, element.value)
+                current = current.next
 
 
 if __name__ == "__main__":
@@ -150,7 +283,7 @@ if __name__ == "__main__":
     ht.put("line_12", "And stood awhile in thought.")
 
     print("")
-    
+
     # Test storing beyond capacity
     for i in range(1, 13):
         print(ht.get(f"line_{i}"))
@@ -168,5 +301,5 @@ if __name__ == "__main__":
 
     print("")
 
-    # print(ht.size)
-    print(ht.get("line_4"))
+  
+    
