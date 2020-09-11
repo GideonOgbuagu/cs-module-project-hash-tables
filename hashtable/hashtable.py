@@ -96,7 +96,7 @@ class HashTable:
 
         Implement this, and/or DJB2.
         """
-          #     algorithm fnv-1 is
+        #     algorithm fnv-1 is
         # hash := FNV_offset_basis do
 
         # for each byte_of_data to be hashed
@@ -154,8 +154,17 @@ class HashTable:
 
         Implement this.
         """
+
         # Your code here
-      
+
+        """
+        # no collisions
+        # idx = self.hash_index(key)
+        # self.hash_map[idx] = value
+        """
+
+        # with collisions
+
         hash_index = self.hash_index(key)
         if not self.hash_map[hash_index]:  # Nothing there, put a node
             self.hash_map[hash_index] = HashTableEntry(key, value)
@@ -177,6 +186,11 @@ class HashTable:
 
         Implement this.
         """
+        """
+        # no collisions
+        # idx = self.hash_index(key)
+        # self.hash_map[idx] = None
+        """
         # Your code here
         # hashed_index = self.hash_index(key)
         # self.hash_map[hashed_index] = None
@@ -187,6 +201,8 @@ class HashTable:
         #     current_node = self.hash_map[hashed_index]
         #     while current_node and current_node.key == key:
         #         current_node.value = None
+        # with collisions below
+
         hash_index = self.hash_index(key)
         if self.hash_map[hash_index]:
             current_node = self.hash_map[hash_index]
@@ -209,6 +225,11 @@ class HashTable:
 
         Implement this.
         """
+        """
+        # no collisions
+        # idx = self.hash_index(key)
+        # return self.hash_map[idx]
+        """
         # Your code here
         # hashed_index = self.hash_index(key)
         # if self.hash_map[hashed_index]:
@@ -225,10 +246,7 @@ class HashTable:
                 current_node = current_node.next
             # update existing
             if current_node.key == key:
-               return current_node.value
-
-
-    
+                return current_node.value
 
     def resize(self, new_capacity):
         """
@@ -238,24 +256,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        # new_capacity = self.hash_map * 2
-            # $%$Start
-        # old_storage = self.hash_map
-        # self.capacity = new_capacity
-        # self.hash_map = [None] * self.capacity
-        # current_entry = None
-        # # Save this because put adds to it, and we don't want it to.
-        # # It might be less hackish to pass a flag to put indicating that
-        # # we're in a resize and don't want to modify item count.
-        # old_item_count = self.item_count
-        # for bucket_item in old_storage:
-        #     current_entry = bucket_item
-        #     while current_entry is not None:
-        #         self.put(current_entry.key, current_entry.value)
-        #         current_entry = current_entry.next
-        # # Restore this to the correct number
-        # self.item_count = old_item_count
-        # # $%$End
+
         old_hash_map = self.hash_map
         self.hash_map = [None] * new_capacity
         self.capacity = new_capacity
@@ -300,6 +301,3 @@ if __name__ == "__main__":
         print(ht.get(f"line_{i}"))
 
     print("")
-
-  
-    
